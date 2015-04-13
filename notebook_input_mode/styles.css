@@ -1,0 +1,7 @@
+.selected_input_mode i.fa {
+  padding: 0px 5px;
+}
+
+.selected_input_mode i.fa:before {
+  content: "\f00c";
+}
