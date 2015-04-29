@@ -35,6 +35,35 @@ define([
     ) {
     "use strict";
 
+    function flatten_shortcuts(shortcut_tree){
+      var result = {};
+      for (var p in shortcut_tree) {
+          if (typeof(shortcut_tree[p]) == "string") {
+              result[p] = shortcut_tree[p];
+          } else {
+              var subresult = flatten_shortcuts(shortcut_tree[p]);
+              for( var subp in subresult) {
+                  result[p + "," + subp] = subresult[subp];
+              } 
+          }
+      }
+      return result; 
+    }
+
+    function update_shortcuts( shortcut_manager, updated_shortcuts ) {
+
+      var current_shortcuts = _.invert( flatten_shortcuts( shortcut_manager._shortcuts ));
+
+      for (var shortcut_action in _.invert(updated_shortcuts)) {
+        if ( _.has( current_shortcuts, shortcut_action ) && shortcut_manager.get_shortcut( current_shortcuts[shortcut_action] ) ) {
+
+          shortcut_manager.remove_shortcut( current_shortcuts[shortcut_action] );
+        }
+      }
+
+      shortcut_manager.add_shortcuts( updated_shortcuts );
+    }
+
     function set_default_mode() {
       console.log("Unable to reset to default mode, refresh notebook to set input mode.");
     }
@@ -90,42 +119,36 @@ define([
       edit.remove_shortcut("esc")
       edit.add_shortcut("shift-esc", default_edit["esc"])
 
-      var cmd = IPython.keyboard_manager.command_shortcuts;
-      var default_cmd = IPython.keyboard_manager.get_default_command_shortcuts();
+      var vim_command_shortcuts = {
+        "ctrl-c" : "ipython.interrupt-kernel",
+        "ctrl-z" : "ipython.restart-kernel",
 
-      cmd.remove_shortcut("i,i")
-      cmd.set_shortcut("ctrl-c", default_cmd["i,i"])
+        "d,d" : "ipython.cut-selected-cell",
+        "y,y" : 'ipython.copy-selected-cell',
+        "u" : 'ipython.undo-last-cell-deletion',
 
-      cmd.remove_shortcut("0,0")
-      cmd.add_shortcut("ctrl-z", default_cmd["0,0"])
+        "p" : 'ipython.paste-cell-after',
+        "shift-p" : 'ipython.paste-cell-before',
 
-      cmd.remove_shortcut("d,d")
-      cmd.add_shortcut("d,d", default_cmd["x"]);
-      
-      cmd.remove_shortcut("z")
-      cmd.add_shortcut("u", default_cmd["z"]);
+        "o" : "ipython.insert-cell-after",
+        "shift-o" : "ipython.insert-cell-before",
 
-      cmd.remove_shortcut("y")
-      cmd.add_shortcut("`", default_cmd['y'])
+        "i" : 'ipython.enter-edit-mode',
+        "enter" : 'ipython.enter-edit-mode',
+        
+        "shift-j" : "ipython.move-selected-cell-down",
+        "shift-k" : "ipython.move-selected-cell-up",
 
-      cmd.remove_shortcut("m")
-      cmd.add_shortcut("0", default_cmd['m'])
+        "shift-/" : 'ipython.show-keyboard-shortcut-help-dialog',
+        "h" : 'ipython.toggle-output-visibility-selected-cell',
+        "shift-h" : 'ipython.toggle-output-scrolling-selected-cell',
 
-      cmd.add_shortcut("y,y", default_cmd["c"])
-      cmd.add_shortcut("p", default_cmd["v"])
-      cmd.add_shortcut("shift-p", default_cmd["shift-v"])
+        "`" : 'ipython.change-selected-cell-to-code-cell',
+        "0" : 'ipython.change-selected-cell-to-markdown-cell',
+      }
 
-      cmd.add_shortcut("i", default_cmd["enter"]);
+      update_shortcuts( IPython.keyboard_manager.command_shortcuts, vim_command_shortcuts );
 
-      cmd.remove_shortcut("h")
-      cmd.add_shortcut("shift-/", default_cmd["h"])
-
-      cmd.remove_shortcut("o")
-      cmd.add_shortcut("h", default_cmd["o"])
-      cmd.add_shortcut("shift-h", default_cmd["shift-o"])
-
-      cmd.add_shortcut("o", default_cmd["b"])
-      cmd.add_shortcut("shift-o", default_cmd["a"])
     };
 
     function apply_input_mode(target_mode) {
