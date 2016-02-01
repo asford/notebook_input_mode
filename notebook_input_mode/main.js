@@ -127,6 +127,9 @@ define([
         "y,y" : 'ipython.copy-selected-cell',
         "u" : 'ipython.undo-last-cell-deletion',
 
+        "alt-j" : "ipython.extend-selection-next",
+        "alt-k" : "ipython.extend-selection-previous",
+
         "p" : 'ipython.paste-cell-after',
         "shift-p" : 'ipython.paste-cell-before',
 
