@@ -19,7 +19,7 @@ define([
     'codemirror/addon/edit/matchbrackets',
     'codemirror/addon/search/searchcursor',
     'codemirror/addon/search/search',
-], function(IPython,
+], function(Jupyter,
     $,
     utils,
     keyboard,
@@ -78,8 +78,8 @@ define([
             CodeMirror.keyMap['vim'].call('Esc', cm);
         } else {
             // Move to notebook command mode.
-            IPython.notebook.command_mode();
-            IPython.notebook.focus_cell();
+            Jupyter.notebook.command_mode();
+            Jupyter.notebook.focus_cell();
         }
       };
 
@@ -98,7 +98,7 @@ define([
 
       update_cm_config( cell.Cell.options_default.cm_config );
 
-      IPython.notebook.get_cells().map(
+      Jupyter.notebook.get_cells().map(
         function(cell) {
           update_cm_config( cell.cm_config );
           update_cm_to_default( cell.code_mirror);
@@ -108,46 +108,46 @@ define([
       // Disable keyboard manager for code mirror dialogs, handles ':' triggered ex-mode dialog box in vim mode.
       // Manager is re-enabled by re-entry into notebook edit mode + cell normal mode after dialog closes
       function openDialog_keymap_wrapper(target, template, callback, options) {
-        IPython.keyboard_manager.disable();
+        Jupyter.keyboard_manager.disable();
         return target.call(this, template, callback, options);
       }
       CodeMirror.defineExtension("openDialog", _.wrap(CodeMirror.prototype.openDialog, openDialog_keymap_wrapper ));
 
       // Rebind shortcuts to more vim-like nature
-      var edit = IPython.keyboard_manager.edit_shortcuts;
-      var default_edit = IPython.keyboard_manager.get_default_edit_shortcuts();
+      var edit = Jupyter.keyboard_manager.edit_shortcuts;
+      var default_edit = Jupyter.keyboard_manager.get_default_edit_shortcuts();
       edit.remove_shortcut("esc")
       edit.add_shortcut("shift-esc", default_edit["esc"])
 
       var vim_command_shortcuts = {
-        "ctrl-c" : "ipython.interrupt-kernel",
-        "ctrl-z" : "ipython.restart-kernel",
+        "ctrl-c" : "jupyter-notebook:interrupt-kernel",
+        "ctrl-z" : "jupyter-notebook:restart-kernel",
 
-        "d,d" : "ipython.cut-selected-cell",
-        "y,y" : 'ipython.copy-selected-cell',
-        "u" : 'ipython.undo-last-cell-deletion',
+        "d,d" : "jupyter-notebook:cut-cell",
+        "y,y" : "jupyter-notebook:copy-cell",
+        "u" : "jupyter-notebook:undo-cell-deletion",
 
-        "p" : 'ipython.paste-cell-after',
-        "shift-p" : 'ipython.paste-cell-before',
+        "p" : "jupyter-notebook:paste-cell-below",
+        "shift-p" : "jupyter-notebook:paste-cell-above",
 
-        "o" : "ipython.insert-cell-after",
-        "shift-o" : "ipython.insert-cell-before",
+        "o" : "jupyter-notebook:insert-cell-below",
+        "shift-o" : "jupyter-notebook:insert-cell-above",
 
-        "i" : 'ipython.enter-edit-mode',
-        "enter" : 'ipython.enter-edit-mode',
-        
-        "shift-j" : "ipython.move-selected-cell-down",
-        "shift-k" : "ipython.move-selected-cell-up",
+        "i" : "jupyter-notebook:enter-edit-mode",
+        "enter" : "jupyter-notebook:enter-edit-mode",
 
-        "shift-/" : 'ipython.show-keyboard-shortcut-help-dialog',
-        "h" : 'ipython.toggle-output-visibility-selected-cell',
-        "shift-h" : 'ipython.toggle-output-scrolling-selected-cell',
+        "shift-j" : "jupyter-notebook:move-cell-down",
+        "shift-k" : "jupyter-notebook:move-cell-up",
 
-        "`" : 'ipython.change-selected-cell-to-code-cell',
-        "0" : 'ipython.change-selected-cell-to-markdown-cell',
+        "shift-/" : "jupyter-notebook:show-keyboard-shortcuts",
+        "h" : "jupyter-notebook:toggle-cell-output-collapsed",
+        "shift-h" : "jupyter-notebook:toggle-cell-output-scrolled",
+
+        "`" : "jupyter-notebook:change-cell-to-code",
+        "0" : "jupyter-notebook:change-cell-to-markdown",
       }
 
-      update_shortcuts( IPython.keyboard_manager.command_shortcuts, vim_command_shortcuts );
+      update_shortcuts( Jupyter.keyboard_manager.command_shortcuts, vim_command_shortcuts );
 
     };
 
@@ -163,7 +163,7 @@ define([
     }
 
     function update_mode_menu( ) {
-      var input_mode = IPython.notebook.config.data.notebook_input_mode || "default";
+      var input_mode = Jupyter.notebook.config.data.notebook_input_mode || "default";
 
       $("#edit_menu").find(".selected_input_mode").removeClass("selected_input_mode");
       $("#edit_menu").find("#menu-keymap-" + input_mode).addClass("selected_input_mode");
@@ -171,7 +171,7 @@ define([
 
     function update_input_mode(target_mode) {
       apply_input_mode( target_mode );
-      IPython.notebook.config.update({ notebook_input_mode : target_mode }).then( IPython.notebook.events.trigger("config_changed.notebook_input_mode"));
+      Jupyter.notebook.config.update({ notebook_input_mode : target_mode }).then( Jupyter.notebook.events.trigger("config_changed.notebook_input_mode"));
     };
 
     return {
@@ -179,7 +179,7 @@ define([
       //---
       load_ipython_extension: function(){
         $('head').append('<link rel="stylesheet" href="/nbextensions/notebook_input_mode/styles.css" type="text/css" />');
-        
+
         $("#edit_menu").append('<li class="divider"></li>');
         $("#edit_menu").append('<li class="dropdown-header">Key Map</li>');
         $("#edit_menu").append('<li id="menu-keymap-default"><a href="#">Default<i class="fa"></i></a></li>');
@@ -187,11 +187,11 @@ define([
 
         $('#menu-keymap-vim').click(function () { update_input_mode('vim'); });
         $('#menu-keymap-default').click(function () { update_input_mode('default'); });
-        IPython.notebook.events.on("config_changed.notebook_input_mode", update_mode_menu);
+        Jupyter.notebook.events.on("config_changed.notebook_input_mode", update_mode_menu);
 
-        var input_mode = IPython.notebook.config.data.notebook_input_mode || "default";
+        var input_mode = Jupyter.notebook.config.data.notebook_input_mode || "default";
         apply_input_mode(input_mode);
-        IPython.notebook.events.trigger("config_changed.notebook_input_mode");
+        Jupyter.notebook.events.trigger("config_changed.notebook_input_mode");
     }
   };
 })
