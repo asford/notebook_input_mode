@@ -100,8 +100,7 @@ define([
 
       Jupyter.notebook.get_cells().map(
         function(cell) {
-          update_cm_config( cell.cm_config );
-          update_cm_to_default( cell.code_mirror);
+          update_cm_to_default(cell.code_mirror);
           return cell;
         });
 
