@@ -3,9 +3,13 @@ Jupyter nbextension supporting alternate input modes such as vim mode
 
 # Installation
 
-1. clone the repo
-1. run `python install.py`
-1. within a ipython notebook switch on vim mode via 'Edit -> Vim'
+* `clone` and run `python setup.py develop` 
+
+__or__
+
+* `pip install 'git+https://github.com/asford/notebook_input_mode.git#egg=notebook_input_mode'`
+
+Within a notebook switch on vim mode via the menu bar `Edit -> Vim`.
 
 # Key Mappings
 tbd
