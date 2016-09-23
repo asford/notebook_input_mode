@@ -1,0 +1,6 @@
+Type: IPython Notebook Extension
+Name: notebook_input_mode
+Description: Jupyter nbextension supporting alternate input modes such as vim mode
+Link: README.md
+Main: main.js
+Compatibility: Jupyter (4.x) 
