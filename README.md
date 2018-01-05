@@ -1,5 +1,8 @@
 # notebook_input_mode
 Jupyter nbextension supporting alternate input modes such as vim mode
+# Deprecated!
+
+Note that this extension has been deprecated in favor of [Select Codemirror Keymap](http://jupyter-contrib-nbextensions.readthedocs.io/en/latest/nbextensions/select_keymap/README.html), and `jupyter-contrib-nbextensions` sub-project.
 
 # Installation
 
